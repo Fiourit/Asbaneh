@@ -8,53 +8,104 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      text-align: center;
       background-color: #1e1e1e;
       margin: 0;
-      padding: 2rem;
+      padding: 1rem;
       color: white;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+    .header {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 36px);
+      color: #ffcc00;
+    }
+    .header p {
+      margin: 5px 0 0;
+      font-size: clamp(14px, 3vw, 18px);
+      font-style: italic;
+      color: #ddd;
+    }
+    .game-wrapper {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 60px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    select {
+      padding: 8px;
+      background: linear-gradient(135deg, #ffcc00, #ff9900);
+      border: none;
+      border-radius: 5px;
+      color: #1e1e1e;
+      font-weight: bold;
+      font-size: clamp(14px, 3vw, 16px);
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease-in-out;
+    }
+    select:hover {
+      background: linear-gradient(135deg, #ff9900, #ff6600);
+      transform: scale(1.05);
+    }
+    button {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #ffcc00, #ff9900);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: clamp(14px, 3vw, 16px);
+      transition: background 0.3s ease, transform 0.2s ease-in-out;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #ff9900, #ff6600);
+      transform: scale(1.1);
+    }
     .container {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 20px;
-    }
-    h1, select, button {
-      margin-bottom: 20px;
+      gap: 10px;
+      width: 100%;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(7, 60px);
-      grid-template-rows: repeat(7, 60px);
+      grid-template-columns: repeat(7, minmax(40px, 60px));
+      grid-template-rows: repeat(7, minmax(40px, 60px));
       gap: 3px;
       background: #2c2c2c;
-      padding: 10px;
+      padding: 8px;
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    }
-    .scoreboard {
-      background: #333;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(255, 255, 0, 0.6);
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffcc00;
-      text-align: center;
-      width: 150px;
+      width: 100%;
+      max-width: 436px; /* 7 * 60px + gaps/padding */
+      box-sizing: border-box;
     }
     .cell {
-      width: 60px;
-      height: 60px;
+      width: 100%;
+      height: 100%;
       background-color: #444;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: clamp(20px, 5vw, 24px);
       cursor: pointer;
       transition: transform 0.2s ease-in-out, background-color 0.3s ease;
     }
@@ -67,59 +118,128 @@
       animation: fadeIn 0.5s ease-in-out;
     }
     .knight {
-      font-size: 40px;
+      font-size: clamp(24px, 6vw, 40px);
       color: #ffcc00;
       transition: transform 0.3s ease-in-out;
+    }
+    .scoreboard {
+      background: #333;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.6);
+      font-size: clamp(16px, 4vw, 20px);
+      font-weight: bold;
+      color: #ffcc00;
+      text-align: center;
+      width: 100%;
+      max-width: 150px;
     }
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-30px);
-      }
-      60% {
-        transform: translateY(-15px);
-      }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
     }
-    .bounce {
-      animation: bounce 2s infinite;
+    .pulse {
+      animation: pulse 1.5s infinite ease-in-out;
     }
     .blocked {
       background-color: #ff4444;
       pointer-events: none;
     }
-    button {
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #ffcc00, #ff9900);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease, transform 0.2s ease-in-out;
+    #message {
+      font-size: clamp(14px, 3vw, 16px);
+      margin-top: 10px;
     }
-    button:hover {
-      background: linear-gradient(135deg, #ff9900, #ff6600);
-      transform: scale(1.1);
+    .instructions {
+      width: 100%;
+      max-width: 620px;
+      margin-top: 20px;
+      text-align: left;
+      line-height: 1.6;
+      color: #ddd;
+      font-size: clamp(12px, 2.5vw, 16px);
+    }
+    .instructions h2 {
+      color: #ffcc00;
+      margin-bottom: 15px;
+      font-size: clamp(18px, 4vw, 24px);
+    }
+    .instructions p {
+      margin-bottom: 15px;
+    }
+    .instructions ul {
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .game-wrapper {
+        padding-top: 80px;
+      }
+      .controls {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .container {
+        gap: 8px;
+      }
+      .grid {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>ASBANEH</h1>
-  <label for="level">Choose Level:</label>
-  <select id="level"></select>
-  <button onclick="startGame()">Start Game</button>
-  <div class="container">
-    <div class="grid" id="grid"></div>
-    <div class="scoreboard">Score: <span id="score">0</span></div>
+  <div class="header">
+    <h1>ASBANEH</h1>
+    <p>Unleash the Knight Within!</p>
   </div>
-  <p id="message"></p>
-  <audio id="knightMoveSound" src="knight-move.mp3"></audio>
-  <audio id="gameOverSound" src="game-over.mp3"></audio>
+  <div class="game-wrapper">
+    <div class="controls">
+      <label for="level">Choose Level:</label>
+      <select id="level"></select>
+      <button onclick="startGame()">Start Game</button>
+    </div>
+    <div class="container">
+      <div class="grid" id="grid"></div>
+      <div class="scoreboard">Score: <span id="score">0</span></div>
+    </div>
+    <p id="message"></p>
+    <audio id="knightMoveSound" src="knight-move.mp3"></audio>
+    <audio id="gameOverSound" src="game-over.mp3"></audio>
+  </div>
+
+  <div class="instructions">
+    <h2>Welcome to Asbaneh: The Knight's Challenge</h2>
+    <p>
+      Step into the world of Asbaneh, a thrilling knight's tour game where strategy meets adventure! Guide your trusty knight across a 7x7 battlefield, avoiding obstacles and marking your path. How far can you go before the board traps you?
+    </p>
+    <h2>How to Play</h2>
+    <ul>
+      <li><strong>Choose Your Level:</strong> Select a level from 1 to 10. Higher levels mean more red obstacles (2 per level) blocking your path.</li>
+      <li><strong>Start the Game:</strong> Click "Start Game" to generate a fresh board with random obstacles.</li>
+      <li><strong>Place Your Knight:</strong> Click any gray square to position your knight (♞). Red squares are off-limits!</li>
+      <li><strong>Make Your Moves:</strong> Click any valid square to move your knight in its classic L-shape pattern (two squares one way, one square perpendicular). Valid moves light up with a hover effect.</li>
+      <li><strong>Score Points:</strong> Each move increases your score by 1. Visited squares turn dark gray—you can’t return there.</li>
+      <li><strong>Game Over:</strong> The game ends when no legal moves remain. Watch for the pulsing "Game Over" message and hear the dramatic finale!</li>
+    </ul>
+    <h2>Tips for Success</h2>
+    <p>
+      - Plan ahead: Think about your next few moves to avoid getting cornered.<br>
+      - Use the edges: The knight can sometimes escape tight spots near the board’s borders.<br>
+      - Higher levels test your skill: More obstacles mean tougher challenges—can you master Level 10?
+    </p>
+    <p>
+      Ready to embark on your quest? Choose a level and lead your knight to glory!
+    </p>
+  </div>
+
   <script>
     const size = 7;
     const moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]];
@@ -133,30 +253,101 @@
         option.textContent = `Level ${i}`;
         levelSelect.appendChild(option);
       }
+      console.log("Level menu populated");
+      startGame();
     };
 
     function startGame() {
-      const level = parseInt(document.getElementById('level').value);
+      const level = parseInt(document.getElementById('level').value) || 1;
+      const totalSquares = size * size;
+      const blockedCount = Math.min(level * 2, totalSquares - 1);
+      const target = totalSquares - blockedCount;
+
       board = Array.from({ length: size }, () => Array(size).fill(false));
-      generateFixedObstacles(level);
+      
+      let freePositions = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          freePositions.push([r, c]);
+        }
+      }
+      freePositions.sort(() => Math.random() - 0.5);
+      const [startR, startC] = freePositions[0];
+
+      if (!generateSolvableBoard(startR, startC, 1, target)) {
+        console.warn("Failed to generate solvable board, using fallback");
+        generateFixedObstacles(level);
+      }
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (board[r][c] !== 'blocked') board[r][c] = false;
+        }
+      }
+
       knightPos = null;
       knightPlaced = false;
       score = 0;
       updateScore();
       createGrid();
-      document.getElementById('message').textContent = 'Click any non-blocked square to place the knight.';
+      const message = document.getElementById('message');
+      message.textContent = 'Click any non-blocked square to place the knight.';
+      message.classList.remove('pulse');
+      console.log(`Game started at Level ${level} with ${blockedCount} blocked squares from (${startR}, ${startC})`);
+    }
+
+    function generateSolvableBoard(r, c, moveCount, target) {
+      board[r][c] = 'visited';
+      if (moveCount === target) {
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            if (board[r][c] === false) board[r][c] = 'blocked';
+          }
+        }
+        return true;
+      }
+
+      let nextMoves = [];
+      for (let [dr, dc] of moves) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc] === false) {
+          nextMoves.push([nr, nc, countMoves(nr, nc)]);
+        }
+      }
+      nextMoves.sort((a, b) => a[2] - b[2]);
+
+      for (let [nr, nc] of nextMoves) {
+        if (generateSolvableBoard(nr, nc, moveCount + 1, target)) {
+          return true;
+        }
+      }
+      board[r][c] = false;
+      return false;
+    }
+
+    function countMoves(r, c) {
+      let count = 0;
+      for (let [dr, dc] of moves) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc] === false) {
+          count++;
+        }
+      }
+      return count;
     }
 
     function generateFixedObstacles(level) {
-      let blocks = level * 2;
+      let blocks = Math.min(level * 2, size * size - 1);
       let placed = 0;
       let positions = [];
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          positions.push([r, c]);
+          if (board[r][c] === false) positions.push([r, c]);
         }
       }
-      positions = positions.sort(() => Math.random() - 0.5);
+      positions.sort(() => Math.random() - 0.5);
       while (placed < blocks && positions.length > 0) {
         let [r, c] = positions.pop();
         board[r][c] = 'blocked';
@@ -173,28 +364,33 @@
           cell.classList.add('cell');
           if (board[r][c] === 'blocked') {
             cell.classList.add('blocked');
-          }
-          if (board[r][c] === 'visited') {
+          } else if (board[r][c] === 'visited') {
             cell.classList.add('visited');
           }
           if (knightPos && r === knightPos[0] && c === knightPos[1]) {
             cell.innerHTML = '♞';
             cell.classList.add('knight');
           }
-          cell.addEventListener('click', () => handleCellClick(r, c));
+          cell.onclick = () => {
+            console.log(`Clicked (${r}, ${c})`);
+            handleCellClick(r, c);
+          };
           grid.appendChild(cell);
         }
       }
+      console.log("Grid rendered");
     }
 
     function handleCellClick(r, c) {
       if (!knightPlaced && board[r][c] !== 'blocked') {
         knightPos = [r, c];
         knightPlaced = true;
+        board[r][c] = false;
         createGrid();
         document.getElementById('message').textContent = 'Knight placed! Click to move the knight.';
-        playSound('knightMoveSound'); // Playing the knight move sound when the knight is placed
-      } else if (isMoveValid(r, c)) {
+        playSound('knightMoveSound');
+        console.log(`Knight placed at (${r}, ${c})`);
+      } else if (knightPlaced && isMoveValid(r, c)) {
         moveKnight(r, c);
       }
     }
@@ -202,30 +398,36 @@
     function moveKnight(r, c) {
       board[knightPos[0]][knightPos[1]] = 'visited';
       score++;
-      updateScore();
       knightPos = [r, c];
+      updateScore();
       createGrid();
-      playSound('knightMoveSound'); // Playing the knight move sound on each move
+      playSound('knightMoveSound');
+      console.log(`Moved to (${r}, ${c}), Score: ${score}`);
       if (!hasValidMoves()) {
         const message = document.getElementById('message');
         message.textContent = 'Game Over! No more legal moves.';
-        message.classList.add('bounce');
-        playSound('gameOverSound'); // Playing the game over sound
+        message.classList.add('pulse');
+        playSound('gameOverSound');
+        console.log("Game Over");
       }
     }
 
     function isMoveValid(r, c) {
-      if (board[r][c] === 'blocked' || board[r][c] === 'visited') return false;
+      if (!knightPos || board[r][c] === 'blocked' || board[r][c] === 'visited') return false;
       const [kr, kc] = knightPos;
-      return moves.some(([dr, dc]) => kr + dr === r && kc + dc === c);
+      const valid = moves.some(([dr, dc]) => kr + dr === r && kc + dc === c);
+      console.log(`Move to (${r}, ${c}) from (${kr}, ${kc}) valid: ${valid}`);
+      return valid;
     }
 
     function hasValidMoves() {
+      if (!knightPos) return true;
       const [kr, kc] = knightPos;
       return moves.some(([dr, dc]) => {
         const nr = kr + dr;
         const nc = kc + dc;
-        return nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc] !== 'blocked' && board[nr][nc] !== 'visited';
+        return nr >= 0 && nr < size && nc >= 0 && nc < size && 
+               board[nr][nc] !== 'blocked' && board[nr][nc] !== 'visited';
       });
     }
 
@@ -235,7 +437,7 @@
 
     function playSound(soundId) {
       const sound = document.getElementById(soundId);
-      sound.play();
+      if (sound) sound.play().catch(() => console.log("Audio not found"));
     }
   </script>
 </body>
