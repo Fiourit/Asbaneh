@@ -17,17 +17,21 @@
       flex-direction: column;
       align-items: center;
     }
-    .header {
+    .header-left {
       position: absolute;
       top: 10px;
       left: 15px;
     }
-    .header h1 {
-      margin: 0;
-      font-size: clamp(24px, 5vw, 36px);
-      color: #ffcc00;
+    .header-right {
+      position: absolute;
+      top: 10px;
+      right: 15px;
     }
-    .header p {
+    .header-left img, .header-right img {
+      width: clamp(100px, 20vw, 150px);
+      height: auto;
+    }
+    .header-left p {
       margin: 5px 0 0;
       font-size: clamp(14px, 3vw, 18px);
       font-style: italic;
@@ -94,7 +98,7 @@
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
       width: 100%;
-      max-width: 436px; /* 7 * 60px + gaps/padding */
+      max-width: 436px;
       box-sizing: border-box;
     }
     .cell {
@@ -196,9 +200,12 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>ASBANEH</h1>
+  <div class="header-left">
+    <img src="/Asbaneh/images/Logo-Asbaneh.jpg" alt="Asbaneh Logo">
     <p>Unleash the Knight Within!</p>
+  </div>
+  <div class="header-right">
+    <img src="/Asbaneh/images/Logo-FiouriT.png" alt="FiouriT Logo">
   </div>
   <div class="game-wrapper">
     <div class="controls">
@@ -226,8 +233,8 @@
       <li><strong>Start the Game:</strong> Click "Start Game" to generate a fresh board with random obstacles.</li>
       <li><strong>Place Your Knight:</strong> Click any gray square to position your knight (♞). Red squares are off-limits!</li>
       <li><strong>Make Your Moves:</strong> Click any valid square to move your knight in its classic L-shape pattern (two squares one way, one square perpendicular). Valid moves light up with a hover effect.</li>
-      <li><strong>Score Points:</strong> Each move increases your score by 1. Visited squares turn dark gray—you can’t return there.</li>
-      <li><strong>Game Over:</strong> The game ends when no legal moves remain. Watch for the pulsing "Game Over" message and hear the dramatic finale!</li>
+      <li><strong>Score Points:</strong> Each move increases your score by 1 (starting square doesn't count). Visited squares turn dark gray—you can’t return there.</li>
+      <li><strong>Win or Lose:</strong> Win by visiting all available squares ("Level Completed! Congratulations!"), or lose when no legal moves remain ("Game Over!").</li>
     </ul>
     <h2>Tips for Success</h2>
     <p>
@@ -243,7 +250,7 @@
   <script>
     const size = 7;
     const moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]];
-    let board, knightPos, knightPlaced = false, score = 0;
+    let board, knightPos, knightPlaced = false, score = 0, maxScore;
 
     window.onload = () => {
       const levelSelect = document.getElementById('level');
@@ -261,7 +268,7 @@
       const level = parseInt(document.getElementById('level').value) || 1;
       const totalSquares = size * size;
       const blockedCount = Math.min(level * 2, totalSquares - 1);
-      const target = totalSquares - blockedCount;
+      maxScore = totalSquares - blockedCount; // Total non-blocked squares
 
       board = Array.from({ length: size }, () => Array(size).fill(false));
       
@@ -274,7 +281,7 @@
       freePositions.sort(() => Math.random() - 0.5);
       const [startR, startC] = freePositions[0];
 
-      if (!generateSolvableBoard(startR, startC, 1, target)) {
+      if (!generateSolvableBoard(startR, startC, 1, maxScore)) {
         console.warn("Failed to generate solvable board, using fallback");
         generateFixedObstacles(level);
       }
@@ -293,7 +300,7 @@
       const message = document.getElementById('message');
       message.textContent = 'Click any non-blocked square to place the knight.';
       message.classList.remove('pulse');
-      console.log(`Game started at Level ${level} with ${blockedCount} blocked squares from (${startR}, ${startC})`);
+      console.log(`Game started at Level ${level} with ${blockedCount} blocked squares, max score: ${maxScore}`);
     }
 
     function generateSolvableBoard(r, c, moveCount, target) {
@@ -403,8 +410,13 @@
       createGrid();
       playSound('knightMoveSound');
       console.log(`Moved to (${r}, ${c}), Score: ${score}`);
-      if (!hasValidMoves()) {
-        const message = document.getElementById('message');
+
+      const message = document.getElementById('message');
+      if (score === maxScore - 1) { // Win when score is 1 less than total non-blocked squares
+        message.textContent = 'Level Completed! Congratulations!';
+        message.classList.add('pulse');
+        console.log("Level Completed");
+      } else if (!hasValidMoves()) {
         message.textContent = 'Game Over! No more legal moves.';
         message.classList.add('pulse');
         playSound('gameOverSound');
